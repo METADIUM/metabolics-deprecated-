@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@joincivil/doxity": "0.0.1",
+    "ajv": "^6.0.0",
     "babel-preset-es2015": "^6.24.1",
     "dotenv": "^4.0.0",
     "ethjs-abi": "^0.2.1",
@@ -17,6 +19,7 @@
     "truffle-ledger-provider": "0.0.1"
   },
   "devDependencies": {
+    "@digix/doxity": "^0.4.6",
     "babel-cli": "^6.26.0",
     "babel-preset-node6": "^11.0.0",
     "babel-register": "^6.26.0",
