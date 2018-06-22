@@ -6,6 +6,9 @@ Metadium Smart Contracts consist of followings:
 * MetaRecoveery(ERC721)
 * Permission
 
+## Update
+ver 0.1 we don't use status, attestation mask field,
+
 ## How to Use
 1. Get the current Metadium Identity Manager contract address from MNS(Metadium Name Service)
     1. call getContractAddress("MetadiumIdentityManager") from MNS -> returns address like 0x390dE26d772D2e2005C6d1d24afC902bae37a4bB
@@ -86,3 +89,9 @@ Get the IPFS path of the user metaID
     function createNewMetaRecovery(uint256 _metaID, uint8 _sigV, bytes32 _sigR, bytes32 _sigS, bytes _metaPackage) public returns (bool)
 ```
 Create new Meta Recovery Token as ERC721 format. This token has IPFS path of the user's recovery document.
+
+## how to test
+
+node version : v9.4.0
+
+토큰 하나에 344 byte 까지 저장 가능 한 것 확인. max가 얼마인지는 모름

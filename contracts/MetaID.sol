@@ -42,4 +42,13 @@ contract MetaID is ERC721Token {
   function transferFrom(address _from, address _to, uint256 _tokenId) public {
     super.transferFrom( _from,  _to, _tokenId);
   }
+  /**
+   * @dev Returns an URI for a given token ID
+   * @dev Throws if the token ID does not exist. May return an empty string.
+   * @param _tokenId uint256 ID of the token to query
+   */
+  function tokenURIAsBytes(uint256 _tokenId) public view returns (bytes) {
+    require(exists(_tokenId));
+    return bytes(tokenURIs[_tokenId]);
+  }
 }

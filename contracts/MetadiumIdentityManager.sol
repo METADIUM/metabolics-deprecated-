@@ -22,43 +22,44 @@ contract MetaID {
 
 contract MetadiumIdentityManager is Ownable {
     
+    bytes32 public constant name = "MetadiumIdentityManager";
+
     MetadiumNameService public MNS;
 
     function setMetadiumNameServiceAddress(address _addr) onlyOwner {
         MNS = MetadiumNameService(_addr);
     }
-    
+
+    modifier permissioned() {
+        require(MNS.getPermission(name, msg.sender));
+        _;
+    }
+
     /**
     * @dev Function to create New Meta ID.
     * @param _metaID metaID of user
-    * @param _sigV ECDSA v signature
-    * @param _sigV ECDSA r signature
-    * @param _sigV ECDSA s signature
+    * @param _sig ECDSA signature
     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes), which made signature. 
     * @return A boolean that indicates if the operation was successful.
     */
-    function createNewMetaID(uint256 _metaID, uint8 _sigV, bytes32 _sigR, bytes32 _sigS, bytes _metaPackage) public returns (bool){
-        //permission check from modifier permissionedOnly(msg.sender)
-        
+    function createNewMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage)/* permissioned*/ public returns (bool){
+        //permission checked by modifier permissioned
+
         //get address from metaPackage
-        
         address _senderFromMetaPackage = getAddressFromMetaPackage(_metaPackage);
-
-        //verify the signature using ecrecovery & sender address
-        //check sigV
-        address _senderFromSignatrue = ecrecover(keccak256(_metaID), _sigV,_sigR,_sigS);
-
-        require(_senderFromMetaPackage == _senderFromSignatrue);
+        
+        //verify the signature using ecverify & sender address
+        require(ecverify(_metaID, _sig, _senderFromMetaPackage));
 
         //get metaID address from Metadium Name Service
         MetaID metaIDContract = MetaID(MNS.getContractAddress("MetaID"));
 
         //check whether same meta ID exists if yes, revert
-        require(!metaIDContract.exists(_metaID));
+        require(!metaIDContract.exists(uint256(_metaID)));
 
         //if not, mint erc721 token to sender address 
 
-        require(metaIDContract.mint(_senderFromSignatrue, _metaID, string(_metaPackage)));
+        require(metaIDContract.mint(_senderFromMetaPackage, uint256(_metaID), string(_metaPackage)));
 
         //approve transfer and burn and mint to permissioned address(this contract or proxy)
 
@@ -66,6 +67,7 @@ contract MetadiumIdentityManager is Ownable {
 
     }
 
+/*
     function deleteMetaID(uint256 _metaID, uint8 _sigV, bytes32 _sigR, bytes32 _sigS, bytes _newMetaPackage) public returns (bool){
         //permission check from modifier permissionedOnly(msg.sender)
 
@@ -138,8 +140,7 @@ contract MetadiumIdentityManager is Ownable {
         return true;
 
     }
-
-
+*/
     function verifyingSignature(uint8 sigV, bytes32 sigR, bytes32 sigS, address destination, bytes data) public returns (bool) {
         bytes32 dataHash = keccak256(data);
         address verifiedAddress = ecrecover(dataHash, sigV, sigR, sigS);
@@ -155,11 +156,11 @@ contract MetadiumIdentityManager is Ownable {
 
     }
 
-    function ecrecovery(bytes32 hash, bytes sig) public returns (address) {
+    function ecrecovery(bytes32 hash, bytes sig) public constant returns (address) {
     bytes32 r;
     bytes32 s;
     uint8 v;
-
+    
     if (sig.length != 65) {
       return 0;
     }
@@ -185,28 +186,19 @@ contract MetadiumIdentityManager is Ownable {
     // bytes memory prefix = "\x19Ethereum Signed Message:\n32";
     // hash = sha3(prefix, hash);
 
-    return ecrecover(hash, v, r, s);
-  }
-
-  function ecverify(bytes32 hash, bytes sig, address signer) public returns (bool) {
-    return signer == ecrecovery(hash, sig);
-  }
-
-  function getAddressFromMetaPackage (bytes b) public constant returns (address) {
-    uint result = 0;
-    //get Address from bytes. first byte is version. address is 20bytes after that.
-    for (uint i = 2; i < 42; i++) {
-        uint c = uint(b[i]);
-        if (c >= 48 && c <= 57) {
-            result = result * 16 + (c - 48);
-        }
-        if(c >= 65 && c<= 90) {
-            result = result * 16 + (c - 55);
-        }
-        if(c >= 97 && c<= 122) {
-            result = result * 16 + (c - 87);
-        }
+        return ecrecover(hash, v, r, s);
     }
-    return address(result);
-}
+
+    function ecverify(bytes32 hash, bytes sig, address signer) public constant returns (bool) {
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        hash = keccak256(prefix, hash);
+        return signer == ecrecovery(hash, sig);
+    }
+    function getAddressFromMetaPackage(bytes b) public pure returns (address) {
+        bytes20 out;
+        for (uint i = 1; i < 21; i++) {
+            out |= bytes20(b[i] & 0xFF) >> ((i-1) * 8);    
+        }
+        return address(out);
+    }
 }
