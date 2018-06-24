@@ -112,8 +112,10 @@ contract MetadiumIdentityManager is Ownable {
         require(!metaIDContract.exists(uint256(_newMetaID)));
       
         //burn old erc721 token from sender address
+        require(metaIDContract.burn(uint256(_oldMetaID)));
 
         //mint new erc721 token to sender address 
+        require(metaIDContract.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
 
         //approve transfer and burn and mint to permissioned address(e.g. proxy)
         UpdateMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
@@ -161,8 +163,24 @@ contract MetadiumIdentityManager is Ownable {
     }
 */
 
-    function getMetaIDOwner(uint256 _metaID) public constant returns (address) {
+    function ownerOf(uint256 _tokenId) public view returns (address _owner){
+        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
+        return metaIDContract.ownerOf(_tokenId);
+    }
 
+    function tokenURI(uint256 _tokenId) public view returns (string){
+        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
+        return metaIDContract.tokenURI(_tokenId);
+    }
+
+    function balanceOf(address _owner) public view returns (uint256 _balance){
+        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
+        return metaIDContract.balanceOf(_owner);
+    }
+
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId){
+        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
+        return metaIDContract.tokenOfOwnerByIndex(_owner, _index);
     }
 
     function getRecoveryData(uint256 _metaID) public constant returns (bytes32) {

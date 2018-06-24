@@ -108,6 +108,38 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
             
         });
 
+        it.only('authorized member can update new user\'s erc721 metaID token ', async function () {
+            const _metaPackage = "0x0132f89cbab807ea4de1fc5ba13cd164f1795a84fe65656565656565656565656565656565656565656565"
+            const metaID = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
+            const hashMetaID = web3.sha3(metaID, {encoding: 'hex'})
+            const sigendMetaID = web3.eth.sign(owner,hashMetaID)
+            const _newMetaPackage = "0x0132f89cbab807ea4de1fc5ba13cd164f1795a84fe878787878787878787878787878787878787878787"
+            const newMetaID = "0x2b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
+            const newHashMetaID = web3.sha3(newMetaID, {encoding: 'hex'})
+            const newSigendMetaID = web3.eth.sign(owner,newHashMetaID)
+            
+            //var per = await this.metadiumNameService.getPermission("MetadiumIdentityManager", owner,{from:owner});
+            await this.metadiumIdentityManager.createMetaID(metaID, sigendMetaID, _metaPackage, { from: proxy1, gas:2000000 });
+            
+            //check whether token minted
+            var _balance = await this.metaID.balanceOf(owner)
+            assert.equal(_balance, 1)
+
+            await this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newSigendMetaID, _newMetaPackage, { from: proxy1, gas:2000000, gasPrice:10 });
+            //check whether old token burned and newly minted
+            _balance = await this.metaID.balanceOf(owner)
+            assert.equal(_balance, 1)
+            
+            var _uri = await this.metaID.tokenURIAsBytes(newMetaID); 
+            assert.equal(_newMetaPackage, _uri)
+
+        });
+
     });
 
 });
+//function ownerOf(uint256 _tokenId) public view returns (address _owner);
+//function tokenURI(uint256 _tokenId) public view returns (string);
+//function balanceOf(address _owner) public view returns (uint256 _balance);
+//function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId);
+

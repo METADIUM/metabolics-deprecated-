@@ -29,4 +29,6 @@ contract MetadiumNameService is Ownable{
     function getPermission(bytes32 _contract, address _granted) public constant returns(bool) {
         return permissions[_contract][_granted];
     }
+    //TODO
+    
 }
