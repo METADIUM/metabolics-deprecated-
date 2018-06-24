@@ -41,10 +41,9 @@ contract MetaID is ERC721Token, Ownable {
 
     function burn(uint256 _tokenId) permissioned public returns (bool){
         super._burn(ownerOf(_tokenId), _tokenId);
-        Burn(ownerOf(_tokenId), _tokenId);
+        //Burn(ownerOf(_tokenId), _tokenId);
         return true;
     }
-
     /**
     * @dev Returns an URI as bytes for a given token ID
     * @dev Throws if the token ID does not exist. May return an empty string.
@@ -55,7 +54,7 @@ contract MetaID is ERC721Token, Ownable {
         return bytes(tokenURIs[_tokenId]);
     }
 
-    // Transfer methods are disabled
+    // Transfer/Approval methods are disabled
     function transferFrom(address _from, address _to, uint256 _tokenId) public {
         require(false);
     }
@@ -65,5 +64,15 @@ contract MetaID is ERC721Token, Ownable {
     function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes _data) public {
         require(false);
     }
+    
+    //ERC721BasicToken.sol -> in function _burn, calling clearApproval(_owner, _tokenId) disabled
+
+    function approve(address _to, uint256 _tokenId) public{
+        require(false);
+    }
+    function setApprovalForAll(address _operator, bool _approved) public {
+        require(false);
+    }
+
 
 }
