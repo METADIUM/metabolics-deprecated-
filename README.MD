@@ -8,6 +8,7 @@ Metadium Smart Contracts consist of followings:
 
 ## Deploy
 
+to meta network
 ```
 $ truffle migrate all --reset --network metadium
 ```

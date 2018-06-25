@@ -108,7 +108,7 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
             
         });
 
-        it.only('authorized member can update new user\'s erc721 metaID token ', async function () {
+        it('authorized member can update new user\'s erc721 metaID token ', async function () {
             const _metaPackage = "0x0132f89cbab807ea4de1fc5ba13cd164f1795a84fe65656565656565656565656565656565656565656565"
             const metaID = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
             const hashMetaID = web3.sha3(metaID, {encoding: 'hex'})
