@@ -138,8 +138,3 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
     });
 
 });
-//function ownerOf(uint256 _tokenId) public view returns (address _owner);
-//function tokenURI(uint256 _tokenId) public view returns (string);
-//function balanceOf(address _owner) public view returns (uint256 _balance);
-//function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId);
-

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.21;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./MetadiumNameService.sol";
 // contract MasterContract{
 
@@ -19,6 +19,8 @@ contract MetaID {
     function burn(uint256 _tokenId) public returns (bool);
     function exists(uint256 _tokenId) public view returns (bool _exists);
     function ownerOf(uint256 _tokenId) public view returns (address _owner);
+    function tokenURI(uint256 _tokenId) public view returns (string);
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId);
 }
 
 contract MetadiumIdentityManager is Ownable {

@@ -1,5 +1,7 @@
 require('babel-register')
 var LedgerWalletProvider = require("truffle-ledger-provider");
+var HDWalletProvider = require("truffle-hdwallet-provider");
+var mnemonic = "emotion produce play museum brown element miracle cart gift blossom arrow vivid";
 
 var ledgerOptions = {
   networkId: 3, // 1 mainnet, 3 ropsten
@@ -32,15 +34,14 @@ module.exports = {
       network_id: 3,
       gas: 4600000,
       gasPrice:4000000000
-    }
-    /*
-    ropsten: {
+    },
+    metadium: {
       provider: function() {
-        return new HDWalletProvider(mnemonic, "https://ropsten.infura.io/tYiHo1HlBMB7IeA6AM7f");
+        return new HDWalletProvider(mnemonic, "http://13.125.247.228:8545");
       },
-      network_id: '3',
+      network_id: '127',
     }
-    */
+    
   }
     
   /*

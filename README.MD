@@ -6,6 +6,12 @@ Metadium Smart Contracts consist of followings:
 * MetaRecoveery(ERC721)
 * Permission
 
+## Deploy
+
+```
+$ truffle migrate all --reset --network metadium
+```
+
 ## Update
 ver 0.1 we don't use status, attestation mask field,
 
