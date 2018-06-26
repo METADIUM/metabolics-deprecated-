@@ -55,34 +55,37 @@ You can get the specific address of contract you want to read.
 #### MetaID CRUD functions
 ```
   /**
-    * @dev Function to create New Meta ID. Signature(v,r,s) =  Sign_User_PrivateKey(metaPackage)
+    * @dev Function to create New Meta ID. signature = user_privatekey_sign(_metaID)
     * @param _metaID metaID of user
-    * @param _sigV ECDSA v signature
-    * @param _sigV ECDSA r signature
-    * @param _sigV ECDSA s signature
-    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes), which made signature. 
+    * @param _sig ECDSA signature
+    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
-    * /
-    function createNewMetaID(uint256 _metaID, uint8 _sigV, bytes32 _sigR, bytes32 _sigS, bytes _metaPackage) public returns (bool)
+    */
+    function createMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool)
 ```
 
 Create New MetaID. MetaID is minted as ERC721 Format. You can either read from this contract or directly from ERC721 MetaID contract.
 
 
 ```
-    function deleteMetaID(uint256 _metaID, uint8 _sigV, bytes32 _sigR, bytes32 _sigS, bytes _newMetaPackage) public returns (bool)
+    function deleteMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool)
 ```
 Delete MetaID if exists.
 
 ```
-    function updateMetaID(uint256 _oldMetaID, uint256 _newMetaID, uint8 _sigV, bytes32 sigR, bytes32 _sigS, bytes _metaPackage) public returns (bool)
+    function updateMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool)
 ```     
 Update MetaID. Burn old metaID and mint new metaID to the user.
 
+
 ```
-    function getMetaIDOwner(uint256 _metaID) public constant returns (address)
+    function ownerOf(uint256 _tokenId) public view returns (address _owner)
+    function tokenURI(uint256 _tokenId) public view returns (string)
+    function balanceOf(address _owner) public view returns (uint256 _balance)
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId)
 ```
-get the owner of the specific metaID.
+proxy interface of MetaID.
+get metaID information from MetaID contract.
 
 
 #### MetaRecovery functions
@@ -102,3 +105,9 @@ Create new Meta Recovery Token as ERC721 format. This token has IPFS path of the
 node version : v9.4.0
 
 토큰 하나에 344 byte 까지 저장 가능 한 것 확인. max가 얼마인지는 모름
+
+###
+
+//proxy1 address : 0x084f8293F1b047D3A217025B24cd7b5aCe8fC657
+//proxy1 private key : 348a1e57efc055f3b8243f6e78fb18d0508f68d6f2e7cadf92b87e84a0b51024
+//this is node3 account[1]

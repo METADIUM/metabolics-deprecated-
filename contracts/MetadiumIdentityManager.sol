@@ -72,7 +72,13 @@ contract MetadiumIdentityManager is Ownable {
 
     }
 
-
+/**
+    * @dev Function to delete Meta ID. signature = user_privatekey_sign(_metaID)
+    * @param _metaID metaID of user
+    * @param _sig ECDSA signature
+    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
+    * @return A boolean that indicates if the operation was successful.
+    */
     function deleteMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool){
         //permission check from modifier permissioned
 
@@ -95,6 +101,14 @@ contract MetadiumIdentityManager is Ownable {
         
     }
 
+    /**
+    * @dev Function to update old MetaID to New MetaID. signature = user_privatekey_sign(_newMetaID)
+    * @param _oldMetaID metaID of user
+    * @param _newMetaID metaID of user
+    * @param _sig ECDSA signature
+    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
+    * @return A boolean that indicates if the operation was successful.
+    */
     function updateMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool){
         //permission check from modifier permissionedOnly(msg.sender)
 

@@ -15,7 +15,7 @@ const MetadiumNameService = artifacts.require('MetadiumNameService');
 contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, user1, user2, proxy2]) {
     const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
     const INITIAL_SUPPLY = 2000000000 * 10 ** 18;
-
+    
     beforeEach(async function () {
 
         this.metaID = await MetaID.new("MetaID", "META", { from: owner });
@@ -62,6 +62,8 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
         
         it('authorized member can register new user\'s erc721 metaID token ', async function () {
             const _metaPackage = "0x0132f89cbab807ea4de1fc5ba13cd164f1795a84fe65656565656565656565656565656565656565656565"
+            //const _metaPackage = "0x01084f8293f1b047d3a217025b24cd7b5ace8fc65765656565656565656565656565656565656565656565" for node3 geth proxy1
+            //0x084f8293f1b047d3a217025b24cd7b5ace8fc657
             const metaID = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
             const hashMetaID = web3.sha3(metaID, {encoding: 'hex'})
             var sigendMetaID = web3.eth.sign(owner,hashMetaID)
