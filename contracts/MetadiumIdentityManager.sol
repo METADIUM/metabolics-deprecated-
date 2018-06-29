@@ -237,9 +237,8 @@ contract MetadiumIdentityManager is Ownable {
     }
 
     function ecverify(bytes32 message, bytes sig, address signer) public constant returns (bool) {
-        message = keccak256(message);
+        //message = keccak256(message);
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        //hash = keccak256(prefix, hash);
         message = keccak256(prefix, message);
         return signer == ecrecovery(message, sig);
     }
