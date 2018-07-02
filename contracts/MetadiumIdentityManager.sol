@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "./openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./MetadiumNameService.sol";
@@ -76,28 +76,28 @@ contract MetadiumIdentityManager is Ownable {
     * @dev Function to delete Meta ID. signature = user_privatekey_sign(_metaID)
     * @param _metaID metaID of user
     * @param _sig ECDSA signature
-    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
     */
-    function deleteMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool){
+    function deleteMetaID(bytes32 _metaID, bytes _timestamp, bytes _sig) permissioned public returns (bool){
         //permission check from modifier permissioned
 
         //get address from metaPackage
-        address _senderFromMetaPackage = getAddressFromMetaPackage(_metaPackage);
+        address _senderFromMetaID = ownerOf(uint256(_metaID));
         
         //verify the signature using ecverify & sender address
-        require(ecverify(_metaID, _sig, _senderFromMetaPackage));
-
+        require(ecverifyWithTimestamp(_metaID, _timestamp, _sig, _senderFromMetaID));
+        
         //get metaID address from Metadium Name Service
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
 
         //check whether the metaID belongs to the sender. this also checks existence
-        require(metaIDContract.ownerOf(uint256(_metaID)) == _senderFromMetaPackage);
+        require(metaIDContract.ownerOf(uint256(_metaID)) == _senderFromMetaID);
 
         //burn metaID
         require(metaIDContract.burn(uint256(_metaID)));
 
-        DeleteMetaID(_senderFromMetaPackage, _metaID);
+        DeleteMetaID(_senderFromMetaID, _metaID);
+        
         
     }
 
@@ -115,6 +115,9 @@ contract MetadiumIdentityManager is Ownable {
         //get address from metaPackage
         address _senderFromMetaPackage = getAddressFromMetaPackage(_metaPackage);
 
+        //check the owner has this metaID
+        require(ownerOf(uint256(_oldMetaID)) == _senderFromMetaPackage);
+
         //verify the signature using ecverify & sender address
         require(ecverify(_newMetaID, _sig, _senderFromMetaPackage));
 
@@ -122,7 +125,7 @@ contract MetadiumIdentityManager is Ownable {
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
 
         //check whether same old Meta ID exists
-        require(metaIDContract.exists(uint256(_oldMetaID)));
+        //require(metaIDContract.exists(uint256(_oldMetaID))); // double checked
 
         //check whether same new Meta ID exists
         require(!metaIDContract.exists(uint256(_newMetaID)));
@@ -137,47 +140,6 @@ contract MetadiumIdentityManager is Ownable {
         UpdateMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
 
     }
-/*
-    function createNewMetaRecovery(uint256 _metaID, uint8 _sigV, bytes32 _sigR, bytes32 _sigS, bytes _metaPackage) public returns (bool){
-        //permission check from modifier permissionedOnly(msg.sender)
-        
-        //metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . IPFSpath(bytes)
-        
-        //get address from metaPackage
-
-        //signature verifying via ecrecovery & sender address 
-
-        
-        //get IDToken address from Master Contract
-        //metaERC721 metaID = metaERC721(MC.getContract("MetaID"));
-
-        //check whether same meta ID exists
-
-        //if not,
-        //mint erc721 token to sender address 
-
-
-        //approve transfer and burn and mint to permissioned address(e.g. peroxy)
-        
-        //register new metaID
-        
-        //require(metaID.mint(_owner, _tokenID, _metaID));
-
-        //get metaID cnt , and set the complements
-        //uint256 _balance = metaID.balanceOf(_owner); 
-
-        //step 2
-        //get metadiumToken address from Master contract
-        //ERC20Basic _metadium = ERC20Basic(MC.getContract("Metadium"));
-
-        //give this address metadium token along with above the condition.
-        //CIS contract must have enough tokens
-        //require(_metadium.transfer(_owner, _balance * (10 **18)));
-
-        return true;
-
-    }
-*/
 
     function ownerOf(uint256 _tokenId) public view returns (address _owner){
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
@@ -197,10 +159,6 @@ contract MetadiumIdentityManager is Ownable {
     function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId){
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
         return metaIDContract.tokenOfOwnerByIndex(_owner, _index);
-    }
-
-    function getRecoveryData(uint256 _metaID) public constant returns (bytes32) {
-
     }
 
     function ecrecovery(bytes32 hash, bytes sig) public constant returns (address) {
@@ -241,6 +199,43 @@ contract MetadiumIdentityManager is Ownable {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         message = keccak256(prefix, message);
         return signer == ecrecovery(message, sig);
+    }
+
+    function concatMetaIDTimestamp(bytes32 message, bytes timestamp) public constant returns (bytes){
+        bytes memory metaIDAndTimestamp = new bytes(100); //= new bytes(message.length + timestamp.length);
+        uint256 i=0;
+        //return timestamp;
+
+        for(i=0;i<2;i++){
+            metaIDAndTimestamp[i] = message[i];
+        }
+        
+        
+        for(i=0;i<timestamp.length;i++){
+            metaIDAndTimestamp[message.length+i] = timestamp[i];
+        }
+        return metaIDAndTimestamp;
+        
+        
+    }
+    function ecverifyWithTimestamp(bytes32 message, bytes timestamp, bytes sig, address signer) public constant returns (bool) {
+        
+        bytes memory metaIDAndTimestamp = new bytes(message.length + timestamp.length);
+        uint256 i;
+        
+        for(i=0;i<message.length;i++){
+            metaIDAndTimestamp[i] = message[i];
+            
+        }
+        
+        for(i=0;i<timestamp.length;i++){
+            metaIDAndTimestamp[message.length+i] = timestamp[i];
+        }
+
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        bytes32 hashedMessage = keccak256(prefix, metaIDAndTimestamp);
+        return signer == ecrecovery(hashedMessage, sig);
+
     }
     function getAddressFromMetaPackage(bytes b) public pure returns (address) {
         //constant 22 should be named.
