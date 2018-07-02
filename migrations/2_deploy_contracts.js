@@ -15,15 +15,15 @@ async function deploy(deployer) {
         //deployer.deploy(MetadiumIdentityManager, name, symbol);
         return deployer.deploy(MetadiumNameService,{gas:3000000, gasPrice:1000}).then((mns)=>{
             return deployer.deploy(MetaID, _name, _symbol,{gas:3000001, gasPrice:1001}).then((mid)=>{
-                return deployer.deploy(MetadiumIdentityManager,{gas:3000002, gasPrice:1002}).then(async function initialSetup(mim){
+                return deployer.deploy(MetadiumIdentityManager,{gas:4000002, gasPrice:1002}).then(async function initialSetup(mim){
                     
                     //mns: name, permission setup
-                    await mns.setContractDomain("MetaID", mid.address)
-                    await mns.setContractDomain("MetadiumIdentityManager", mim.address)
-                    await mns.setPermission("MetadiumIdentityManager", proxy1, "true")
-                    await mns.setPermission("MetaID", mim.address, "true")
-                    await mim.setMetadiumNameServiceAddress(mns.address)
-                    await mid.setMetadiumNameServiceAddress(mns.address)
+                    await mns.setContractDomain("MetaID", mid.address,{gas:3000002, gasPrice:1002})
+                    await mns.setContractDomain("MetadiumIdentityManager", mim.address,{gas:3000002, gasPrice:1002})
+                    await mns.setPermission("MetadiumIdentityManager", proxy1, "true",{gas:3000002, gasPrice:1002})
+                    await mns.setPermission("MetaID", mim.address, "true",{gas:3000002, gasPrice:1002})
+                    await mim.setMetadiumNameServiceAddress(mns.address,{gas:3000002, gasPrice:1002})
+                    await mid.setMetadiumNameServiceAddress(mns.address,{gas:3000002, gasPrice:1002})
                     
                 })
             })

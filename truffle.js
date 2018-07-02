@@ -2,7 +2,7 @@ require('babel-register')
 var LedgerWalletProvider = require("truffle-ledger-provider");
 var HDWalletProvider = require("truffle-hdwallet-provider");
 var mnemonic = "emotion produce play museum brown element miracle cart gift blossom arrow vivid";
-
+var privatekey = "5d257ed6b8160c69bc404b9de8cfa5ca80f2e7997947974ad43d6f2bf6e0f0ef"
 var ledgerOptions = {
   networkId: 3, // 1 mainnet, 3 ropsten
   path: "44'/60'/0'/0", // ledger default derivation path

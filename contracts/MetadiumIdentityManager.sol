@@ -21,6 +21,7 @@ contract MetaID {
     function ownerOf(uint256 _tokenId) public view returns (address _owner);
     function tokenURI(uint256 _tokenId) public view returns (string);
     function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId);
+    function tokenURIAsBytes(uint256 _tokenId) public view returns (bytes);
 }
 
 contract MetadiumIdentityManager is Ownable {
@@ -151,14 +152,24 @@ contract MetadiumIdentityManager is Ownable {
         return metaIDContract.tokenURI(_tokenId);
     }
 
+    /**
+    * @dev Returns an URI as bytes for a given token ID
+    * @dev Throws if the token ID does not exist. May return an empty string.
+    * @param _tokenId uint256 ID of the token to query
+    */
+    function tokenURIAsBytes(uint256 _tokenId) public view returns (bytes) {
+        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
+        return metaIDContract.tokenURIAsBytes(_tokenId);
+    }
+
     function balanceOf(address _owner) public view returns (uint256 _balance){
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
         return metaIDContract.balanceOf(_owner);
     }
 
-    function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId){
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (bytes32 _tokenId){
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.tokenOfOwnerByIndex(_owner, _index);
+        return bytes32(metaIDContract.tokenOfOwnerByIndex(_owner, _index));
     }
 
     function ecrecovery(bytes32 hash, bytes sig) public constant returns (address) {
@@ -201,42 +212,25 @@ contract MetadiumIdentityManager is Ownable {
         return signer == ecrecovery(message, sig);
     }
 
-    function concatMetaIDTimestamp(bytes32 message, bytes timestamp) public constant returns (bytes){
-        bytes memory metaIDAndTimestamp = new bytes(100); //= new bytes(message.length + timestamp.length);
-        uint256 i=0;
-        //return timestamp;
-
-        for(i=0;i<2;i++){
-            metaIDAndTimestamp[i] = message[i];
-        }
-        
-        
-        for(i=0;i<timestamp.length;i++){
-            metaIDAndTimestamp[message.length+i] = timestamp[i];
-        }
-        return metaIDAndTimestamp;
-        
+    function concatMetaIDTimestamp(bytes32 message, bytes timestamp, bytes sig) public constant returns (address){
+        //bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        //bytes32 hashedMessage = keccak256(prefix, message, timestamp);
+        bytes32 hashedMessage = keccak256(message, timestamp);
+        return ecrecovery(hashedMessage, sig);
         
     }
     function ecverifyWithTimestamp(bytes32 message, bytes timestamp, bytes sig, address signer) public constant returns (bool) {
         
-        bytes memory metaIDAndTimestamp = new bytes(message.length + timestamp.length);
-        uint256 i;
-        
-        for(i=0;i<message.length;i++){
-            metaIDAndTimestamp[i] = message[i];
-            
-        }
-        
-        for(i=0;i<timestamp.length;i++){
-            metaIDAndTimestamp[message.length+i] = timestamp[i];
-        }
-
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        bytes32 hashedMessage = keccak256(prefix, metaIDAndTimestamp);
+        uint256 lens = message.length + timestamp.length;
+        prefix[prefix.length-2] = byte(lens / 10 + 48);
+        prefix[prefix.length-1] = byte(lens % 10 + 48);
+
+        bytes32 hashedMessage = keccak256(prefix, message, timestamp);
         return signer == ecrecovery(hashedMessage, sig);
 
     }
+
     function getAddressFromMetaPackage(bytes b) public pure returns (address) {
         //constant 22 should be named.
         uint minLength = 22;

@@ -92,15 +92,15 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
                         
         });
 
-        it.only('authorized member can delete new user\'s erc721 metaID token ', async function () {
+        it('authorized member can delete new user\'s erc721 metaID token ', async function () {
             const _metaPackage = "0x0132f89cbab807ea4de1fc5ba13cd164f1795a84fe65656565656565656565656565656565656565656565"
             const metaID = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
-            const hashMetaID = web3.sha3(metaID, {encoding: 'hex'})
             //var signedMetaID = web3.eth.sign(owner,hashMetaID)
             var signedMetaID = web3.eth.sign(owner,metaID)
             //"0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc","0xab"
-            
+            //"0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc","0x5b39bb16"
             //var per = await this.metadiumNameService.getPermission("MetadiumIdentityManager", owner,{from:owner});
+            console.log(`metaID : ${metaID} \n signedMetaID : ${signedMetaID}\n`)
             await this.metadiumIdentityManager.createMetaID(metaID, signedMetaID, _metaPackage, { from: proxy1, gas:2000000 });
             
             //check whether token minted
@@ -109,24 +109,30 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
 
 
             var timestamp = Math.floor(Date.now() / 1000).toString(16) // "ab01cd"
-            console.log(timestamp)
-            var metaIDAndTimeStamp = metaID + timestamp
-            console.log(metaIDAndTimeStamp)
-            
+            var metaIDAndTimeStamp = metaID.concat(timestamp)
             var signedMetaIDAndTimestamp = web3.eth.sign(owner, metaIDAndTimeStamp)
-
+            
             timestamp = "0x" + timestamp;
-            console.log(`${metaID}  ${timestamp}`)
-            // In remix this works well, but in truffle test this does not work well.
-            await this.metadiumIdentityManager.deleteMetaID(metaID, timestamp, signedMetaIDAndTimestamp, { from: proxy1, gas:2000000, gasPrice:10 });
-            // var cons = await this.metadiumIdentityManager.concatMetaIDTimestamp(metaID, timestamp, { from: proxy1, gas:2000000, gasPrice:10 });
-            // console.log(cons);
+            
+            //console.log(`${signedMetaIDAndTimestamp}`)
+            
+            await this.metadiumIdentityManager.deleteMetaID(metaID, timestamp, signedMetaIDAndTimestamp, { from: proxy1, gas:2000000, gasPrice:10});
+            //var cons = await this.metadiumIdentityManager.ecverifyWithTimestamp(metaID, timestamp, signedMetaIDAndTimestamp,owner, { from: proxy1, gas:2000000, gasPrice:10 });
+
             //check whether token burned
-            //_balance = await this.metaID.balanceOf(owner)
+            _balance = await this.metaID.balanceOf(owner)
             //console.log(_balance)
-            //assert.equal(_balance, 0)
+            assert.equal(_balance, 0)
             
-            
+            /*
+            metaID = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc"
+            timestamp = "0x5b39bb16"
+            idtime = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc5b39bb16"
+            signedMetaIDAndTimestamp = "0x982852773adbf0f8e89beb3bdaaebcdb56c57ef4afefed7135f6cad43da956e83252a3324efb2f2e9641580b36339705818bd5475f488f1d31ab8d12245c9c891c"
+            signer = "0x084f8293f1b047d3a217025b24cd7b5ace8fc657"
+            "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc","0x5b39bb16","0x982852773adbf0f8e89beb3bdaaebcdb56c57ef4afefed7135f6cad43da956e83252a3324efb2f2e9641580b36339705818bd5475f488f1d31ab8d12245c9c891c","0x084f8293f1b047d3a217025b24cd7b5ace8fc657"
+            "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc","0x5b39d0df","0x537aaf13384c03f30e70b3e4a97903f3c61749e863db7b893394a6333d0fc91d228cf53dd04eb9a789fd1a783931d889c3c8de450fa88fdc6ff1deff9d369ddb00"
+            */
         });
 
         it('authorized member can update new user\'s erc721 metaID token ', async function () {

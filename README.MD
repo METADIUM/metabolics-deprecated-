@@ -111,3 +111,8 @@ node version : v9.4.0
 //proxy1 address : 0x084f8293F1b047D3A217025B24cd7b5aCe8fC657
 //proxy1 private key : 348a1e57efc055f3b8243f6e78fb18d0508f68d6f2e7cadf92b87e84a0b51024
 //this is node3 account[1]
+
+07/02
+MetadiumNameService: 0xe06dbbcb9af642017012d5021d586536673b955f
+MetaID: 0x58fe1753151573185566e46c14330a08d6359249
+MetadiumIdentityManager: 0x280c4b294f9179691f30466c14963eb2d5b0addf
