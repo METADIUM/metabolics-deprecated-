@@ -69,12 +69,13 @@ contract MetadiumIdentityManager is Ownable {
         require(metaIDContract.mint(_senderFromMetaPackage, uint256(_metaID), string(_metaPackage)));
 
         CreateMetaID(_senderFromMetaPackage, _metaID);
+
         return true;
 
     }
 
-/**
-    * @dev Function to delete Meta ID. signature = user_privatekey_sign(_metaID)
+    /**
+    * @dev Function to delete Meta ID. signature = user_privatekey_sign(_metaID . _timestamp)
     * @param _metaID metaID of user
     * @param _sig ECDSA signature
     * @return A boolean that indicates if the operation was successful.
@@ -99,7 +100,7 @@ contract MetadiumIdentityManager is Ownable {
 
         DeleteMetaID(_senderFromMetaID, _metaID);
         
-        
+        return true;
     }
 
     /**
@@ -139,6 +140,8 @@ contract MetadiumIdentityManager is Ownable {
 
         //approve transfer and burn and mint to permissioned address(e.g. proxy)
         UpdateMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
+
+        return true;
 
     }
 
@@ -212,17 +215,12 @@ contract MetadiumIdentityManager is Ownable {
         return signer == ecrecovery(message, sig);
     }
 
-    function concatMetaIDTimestamp(bytes32 message, bytes timestamp, bytes sig) public constant returns (address){
-        //bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        //bytes32 hashedMessage = keccak256(prefix, message, timestamp);
-        bytes32 hashedMessage = keccak256(message, timestamp);
-        return ecrecovery(hashedMessage, sig);
-        
-    }
     function ecverifyWithTimestamp(bytes32 message, bytes timestamp, bytes sig, address signer) public constant returns (bool) {
         
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         uint256 lens = message.length + timestamp.length;
+
+        //change the prefix 32 to message+timestamp length
         prefix[prefix.length-2] = byte(lens / 10 + 48);
         prefix[prefix.length-1] = byte(lens % 10 + 48);
 
@@ -232,11 +230,11 @@ contract MetadiumIdentityManager is Ownable {
     }
 
     function getAddressFromMetaPackage(bytes b) public pure returns (address) {
-        //constant 22 should be named.
         uint minLength = 22;
         require(b.length > minLength);
 
         bytes20 out;
+        // b[0] = version
         for (uint i = 1; i < 21; i++) {
             out |= bytes20(b[i] & 0xFF) >> ((i-1) * 8);    
         }
