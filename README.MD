@@ -13,6 +13,7 @@ to meta network
 $ truffle migrate all --reset --network metadium
 ```
 
+
 ## Update
 ver 0.1 we don't use status, attestation mask field,
 
@@ -22,6 +23,33 @@ ver 0.1 we don't use status, attestation mask field,
 2. Interact with this address.
     1. call createNewMetaID(...)
 
+## static analysis
+analysis process : flatten -> analize flattened sources
+
+flatten
+-------------
+solidity_flattener --output temp/MetaID.sol contracts/MetaID.sol
+
+mythril
+-------------
+
+```
+$ myth --truffle >> report.md
+```
+
+see report.md
+
+
+single contract
+
+```
+$ myth -x contracts/Migrations.sol
+```
+
+oyente
+-------------
+$ sudo docker pull luongnguyen/oyente
+$ sudo docker run -i -t luongnguyen/oyente
 
 ## Main Functions
 Explanation of the Metadium Smart Contract Main functions
