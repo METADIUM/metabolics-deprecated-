@@ -100,7 +100,7 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
             //"0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc","0xab"
             //"0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc","0x5b39bb16"
             //var per = await this.metadiumNameService.getPermission("MetadiumIdentityManager", owner,{from:owner});
-            console.log(`metaID : ${metaID} \n signedMetaID : ${signedMetaID}\n`)
+            //console.log(`metaID : ${metaID} \n signedMetaID : ${signedMetaID}\n`)
             await this.metadiumIdentityManager.createMetaID(metaID, signedMetaID, _metaPackage, { from: proxy1, gas:2000000 });
             
             //check whether token minted
@@ -157,6 +157,35 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
             await this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas:2000000, gasPrice:10 });
             //check whether old token burned and newly minted
             _balance = await this.metaID.balanceOf(owner)
+            assert.equal(_balance, 1)
+            
+            var _uri = await this.metaID.tokenURIAsBytes(newMetaID); 
+            assert.equal(_newMetaPackage, _uri)
+
+        });
+
+        it('authorized member can restore new user\'s erc721 metaID token with new user address', async function () {
+            const _metaPackage = "0x0132f89cbab807ea4de1fc5ba13cd164f1795a84fe65656565656565656565656565656565656565656565"
+            const metaID = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
+            //const hashMetaID = web3.sha3(metaID, {encoding: 'hex'})
+            const signedMetaID = web3.eth.sign(owner,metaID)
+            const _newMetaPackage = "0x011db530ced50e1bc77e724d4d3705c1630c8a9ba86170687878787878787878787878787878787878787878"
+            const newMetaID = "0x2b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
+            const newAddress = "0x1db530ced50e1bc77e724d4d3705c1630c8a9ba8" // user1
+            //const newsignedMetaID = web3.eth.sign(owner,newHashMetaID)
+            const newsignedMetaID = web3.eth.sign(user1, newMetaID)
+            
+            //var per = await this.metadiumNameService.getPermission("MetadiumIdentityManager", owner,{from:owner});
+            await this.metadiumIdentityManager.createMetaID(metaID, signedMetaID, _metaPackage, { from: proxy1, gas:2000000 });
+            
+            //check whether token minted
+            var _balance = await this.metaID.balanceOf(owner)
+            assert.equal(_balance, 1)
+
+            await this.metadiumIdentityManager.restoreMetaID(metaID, newMetaID, owner, newsignedMetaID, _newMetaPackage, { from: proxy1, gas:2000000, gasPrice:10 });
+
+            //check whether old token burned and newly minted
+            _balance = await this.metaID.balanceOf(user1)
             assert.equal(_balance, 1)
             
             var _uri = await this.metaID.tokenURIAsBytes(newMetaID); 

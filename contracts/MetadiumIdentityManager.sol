@@ -32,6 +32,7 @@ contract MetadiumIdentityManager is Ownable {
     
     event CreateMetaID(address indexed owner, bytes32 indexed metaID);
     event UpdateMetaID(address indexed owner, bytes32 indexed oldMetaID, bytes32 indexed newMetaID);
+    event RestoreMetaID(address indexed owner, bytes32 indexed oldMetaID, bytes32 indexed newMetaID);
     event DeleteMetaID(address indexed owner, bytes32 indexed metaID);
     
     function setMetadiumNameServiceAddress(address _addr) onlyOwner {
@@ -45,7 +46,7 @@ contract MetadiumIdentityManager is Ownable {
 
     /**
     * @dev Function to create New Meta ID. signature = user_privatekey_sign(_metaID)
-    * @param _metaID metaID of user
+    * @param _metaID metaID of the user
     * @param _sig ECDSA signature
     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
@@ -76,7 +77,7 @@ contract MetadiumIdentityManager is Ownable {
 
     /**
     * @dev Function to delete Meta ID. signature = user_privatekey_sign(_metaID . _timestamp)
-    * @param _metaID metaID of user
+    * @param _metaID metaID of the user
     * @param _sig ECDSA signature
     * @return A boolean that indicates if the operation was successful.
     */
@@ -84,7 +85,7 @@ contract MetadiumIdentityManager is Ownable {
         //permission check from modifier permissioned
 
         //get address from metaPackage
-        address _senderFromMetaID = ownerOf(uint256(_metaID));
+        address _senderFromMetaID = ownerOf(_metaID);
         
         //verify the signature using ecverify & sender address
         require(ecverifyWithTimestamp(_metaID, _timestamp, _sig, _senderFromMetaID));
@@ -105,8 +106,8 @@ contract MetadiumIdentityManager is Ownable {
 
     /**
     * @dev Function to update old MetaID to New MetaID. signature = user_privatekey_sign(_newMetaID)
-    * @param _oldMetaID metaID of user
-    * @param _newMetaID metaID of user
+    * @param _oldMetaID metaID of the user
+    * @param _newMetaID metaID of the user
     * @param _sig ECDSA signature
     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
@@ -118,7 +119,7 @@ contract MetadiumIdentityManager is Ownable {
         address _senderFromMetaPackage = getAddressFromMetaPackage(_metaPackage);
 
         //check the owner has this metaID
-        require(ownerOf(uint256(_oldMetaID)) == _senderFromMetaPackage);
+        require(ownerOf(_oldMetaID) == _senderFromMetaPackage);
 
         //verify the signature using ecverify & sender address
         require(ecverify(_newMetaID, _sig, _senderFromMetaPackage));
@@ -145,14 +146,57 @@ contract MetadiumIdentityManager is Ownable {
 
     }
 
-    function ownerOf(uint256 _tokenId) public view returns (address _owner){
+    /**
+    * @dev Function to update old MetaID to New MetaID. signature = user_privatekey_sign(_newMetaID)
+    * @param _oldMetaID metaID of the user
+    * @param _newMetaID metaID of the user
+    * @param _oldAddress old address of the user
+    * @param _sig ECDSA signature
+    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
+    * @return A boolean that indicates if the operation was successful.
+    */
+    function restoreMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, address _oldAddress, bytes _sig, bytes _metaPackage) permissioned public returns (bool){
+        //permission check from modifier permissionedOnly(msg.sender)
+
+        //get NEW address from metaPackage
+        address _senderFromMetaPackage = getAddressFromMetaPackage(_metaPackage);
+
+        //check the old address owner has old metaID
+        require(ownerOf(_oldMetaID) == _oldAddress);
+
+        //verify the signature using ecverify & new sender address
+        require(ecverify(_newMetaID, _sig, _senderFromMetaPackage));
+
+        //get metaID address from Metadium Name Service
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.ownerOf(_tokenId);
+
+        //check whether same old Meta ID exists
+        //require(metaIDContract.exists(uint256(_oldMetaID))); // double checked
+
+        //check whether same new Meta ID exists
+        require(!metaIDContract.exists(uint256(_newMetaID)));
+      
+        //burn old erc721 token from sender address
+        require(metaIDContract.burn(uint256(_oldMetaID)));
+
+        //mint new erc721 token to sender address 
+        require(metaIDContract.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
+
+        //approve transfer and burn and mint to permissioned address(e.g. proxy)
+        RestoreMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
+
+        return true;
+
     }
 
-    function tokenURI(uint256 _tokenId) public view returns (string){
+    function ownerOf(bytes32 _tokenId) public view returns (address _owner){
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.tokenURI(_tokenId);
+        return metaIDContract.ownerOf(uint256(_tokenId));
+    }
+
+    function tokenURI(bytes32 _tokenId) public view returns (string){
+        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
+        return metaIDContract.tokenURI(uint256(_tokenId));
     }
 
     /**
@@ -160,9 +204,9 @@ contract MetadiumIdentityManager is Ownable {
     * @dev Throws if the token ID does not exist. May return an empty string.
     * @param _tokenId uint256 ID of the token to query
     */
-    function tokenURIAsBytes(uint256 _tokenId) public view returns (bytes) {
+    function tokenURIAsBytes(bytes32 _tokenId) public view returns (bytes) {
         MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.tokenURIAsBytes(_tokenId);
+        return metaIDContract.tokenURIAsBytes(uint256(_tokenId));
     }
 
     function balanceOf(address _owner) public view returns (uint256 _balance){

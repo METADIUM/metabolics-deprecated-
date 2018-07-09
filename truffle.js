@@ -22,6 +22,7 @@ module.exports = {
       network_id: "*", // Match any network id
       gas:6000000
     },
+    
     ropsten: {
       provider: new LedgerWalletProvider(ledgerOptions, "https://ropsten.infura.io/tYiHo1HlBMB7IeA6AM7f"),
       network_id: 3,
