@@ -12,7 +12,7 @@ const MetaID = artifacts.require('MetaID');
 const MetadiumIdentityManager = artifacts.require('MetadiumIdentityManager');
 const MetadiumNameService = artifacts.require('MetadiumNameService');
 
-contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, user1, user2, proxy2]) {
+contract('Metadium Identity Manager', function ([deployer, owner, proxy1, user1, user2, proxy2]) {
     const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
     const INITIAL_SUPPLY = 2000000000 * 10 ** 18;
     
@@ -29,7 +29,32 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
         this.metaID.setMetadiumNameServiceAddress(this.metadiumNameService.address, { from: owner });
 
     });
+    describe('Contract basic function test', function () {
+        describe('Contract basic function test', function () {
+            beforeEach(async function () {
 
+
+            });
+            // test basic functions
+            it('Contract can extract address from the metaPackage', async function () {
+                
+                assert.equal(true,true);
+    
+    
+            });
+        });
+        beforeEach(async function () {
+
+
+        });
+        // test basic functions
+        it('Contract can extract address from the metaPackage', async function () {
+            
+            assert.equal(true,true);
+
+
+        });
+    })
     describe('Contract basic function test', function () {
         beforeEach(async function () {
 
@@ -196,3 +221,64 @@ contract('Metadium Identity Manager Test', function ([deployer, owner, proxy1, u
     });
 
 });
+/*
+MetadiumIdentityManager
+each test must have test about permission
+
+createMetaID
+
+deleteMetaID
+
+updateMetaID
+
+restoreMetaID
+
+
+
+-----------------------
+ownerOf
+
+tokenURI
+
+tokenURIAsBytes
+
+balanceOf
+
+tokenOfOwnerByIndex
+
+ecverify
+
+ecverifyWithTimestamp
+
+getAddressFromMetaPackage
+
+setMetadiumNameServiceAddress
+------------------------
+
+
+*/
+
+/*
+MetadiumNameService
+
+setContractDomain
+getContractAddress
+setPermission
+getPermission
+
+*/
+
+
+/*
+MetaID
+
+mint
+burn
+tokenURIAsBytes
+transferFrom
+safeTransferFrom1
+safeTransferFrom2
+approve
+setApprovalForAll
+
+*/

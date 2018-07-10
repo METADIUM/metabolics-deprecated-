@@ -27,6 +27,7 @@ contract MetaID {
 contract MetadiumIdentityManager is Ownable {
 
     MetadiumNameService public MNS;
+    MetaID public MID;
     bytes32 public constant nameMetaIdentityManager = "MetadiumIdentityManager";
     bytes32 public constant nameMetaID = "MetaID";
     
@@ -37,6 +38,10 @@ contract MetadiumIdentityManager is Ownable {
     
     function setMetadiumNameServiceAddress(address _addr) onlyOwner {
         MNS = MetadiumNameService(_addr);
+    }
+    
+    function setMetaIDAddress(address _addr) onlyOwner {
+        MID = MetaID(MNS.getContractAddress(nameMetaID));
     }
 
     modifier permissioned() {
