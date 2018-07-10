@@ -26,8 +26,9 @@ contract MetaID {
 
 contract MetadiumIdentityManager is Ownable {
 
-    MetadiumNameService public MNS;
-    MetaID public MID;
+    MetadiumNameService public MNS; // address of Metadium Name Service
+    MetaID public MID; // address of MetaID
+
     bytes32 public constant nameMetaIdentityManager = "MetadiumIdentityManager";
     bytes32 public constant nameMetaID = "MetaID";
     
@@ -35,20 +36,24 @@ contract MetadiumIdentityManager is Ownable {
     event UpdateMetaID(address indexed owner, bytes32 indexed oldMetaID, bytes32 indexed newMetaID);
     event RestoreMetaID(address indexed owner, bytes32 indexed oldMetaID, bytes32 indexed newMetaID);
     event DeleteMetaID(address indexed owner, bytes32 indexed metaID);
-    
-    function setMetadiumNameServiceAddress(address _addr) onlyOwner {
-        MNS = MetadiumNameService(_addr);
-    }
-    
-    function setMetaIDAddress(address _addr) onlyOwner {
-        MID = MetaID(MNS.getContractAddress(nameMetaID));
-    }
 
     modifier permissioned() {
         require(MNS.getPermission(nameMetaIdentityManager, msg.sender));
         _;
     }
 
+    modifier linked() {
+        require(MNS != address(0) && MID != address(0));
+        _;
+    }
+
+    modifier fixedLengthMetaPackage(bytes _metaPackage){
+        // Version 0x01 -> metaPackage.length == 85 bytes
+        uint256 version01Length = 85;
+        require(_metaPackage.length == version01Length);
+        _;
+    }
+    
     /**
     * @dev Function to create New Meta ID. signature = user_privatekey_sign(_metaID)
     * @param _metaID metaID of the user
@@ -56,7 +61,7 @@ contract MetadiumIdentityManager is Ownable {
     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
     */
-    function createMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool){
+    function createMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool){
         //permission checked by modifier permissioned
 
         //get address from metaPackage
@@ -65,14 +70,11 @@ contract MetadiumIdentityManager is Ownable {
         //verify the signature using ecverify & sender address
         require(ecverify(_metaID, _sig, _senderFromMetaPackage));
 
-        //get metaID address from Metadium Name Service
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-
         //check whether same meta ID exists if yes, revert
-        require(!metaIDContract.exists(uint256(_metaID)));
+        require(!MID.exists(uint256(_metaID)));
 
         //if not, mint erc721 token to sender address 
-        require(metaIDContract.mint(_senderFromMetaPackage, uint256(_metaID), string(_metaPackage)));
+        require(MID.mint(_senderFromMetaPackage, uint256(_metaID), string(_metaPackage)));
 
         CreateMetaID(_senderFromMetaPackage, _metaID);
 
@@ -86,7 +88,7 @@ contract MetadiumIdentityManager is Ownable {
     * @param _sig ECDSA signature
     * @return A boolean that indicates if the operation was successful.
     */
-    function deleteMetaID(bytes32 _metaID, bytes _timestamp, bytes _sig) permissioned public returns (bool){
+    function deleteMetaID(bytes32 _metaID, bytes _timestamp, bytes _sig) linked permissioned public returns (bool){
         //permission check from modifier permissioned
 
         //get address from metaPackage
@@ -94,15 +96,12 @@ contract MetadiumIdentityManager is Ownable {
         
         //verify the signature using ecverify & sender address
         require(ecverifyWithTimestamp(_metaID, _timestamp, _sig, _senderFromMetaID));
-        
-        //get metaID address from Metadium Name Service
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
 
         //check whether the metaID belongs to the sender. this also checks existence
-        require(metaIDContract.ownerOf(uint256(_metaID)) == _senderFromMetaID);
+        require(MID.ownerOf(uint256(_metaID)) == _senderFromMetaID);
 
         //burn metaID
-        require(metaIDContract.burn(uint256(_metaID)));
+        require(MID.burn(uint256(_metaID)));
 
         DeleteMetaID(_senderFromMetaID, _metaID);
         
@@ -117,7 +116,7 @@ contract MetadiumIdentityManager is Ownable {
     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
     */
-    function updateMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool){
+    function updateMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool){
         //permission check from modifier permissionedOnly(msg.sender)
 
         //get address from metaPackage
@@ -129,20 +128,17 @@ contract MetadiumIdentityManager is Ownable {
         //verify the signature using ecverify & sender address
         require(ecverify(_newMetaID, _sig, _senderFromMetaPackage));
 
-        //get metaID address from Metadium Name Service
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-
         //check whether same old Meta ID exists
         //require(metaIDContract.exists(uint256(_oldMetaID))); // double checked
 
         //check whether same new Meta ID exists
-        require(!metaIDContract.exists(uint256(_newMetaID)));
+        require(!MID.exists(uint256(_newMetaID)));
       
         //burn old erc721 token from sender address
-        require(metaIDContract.burn(uint256(_oldMetaID)));
+        require(MID.burn(uint256(_oldMetaID)));
 
         //mint new erc721 token to sender address 
-        require(metaIDContract.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
+        require(MID.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
 
         //approve transfer and burn and mint to permissioned address(e.g. proxy)
         UpdateMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
@@ -160,7 +156,7 @@ contract MetadiumIdentityManager is Ownable {
     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
     */
-    function restoreMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, address _oldAddress, bytes _sig, bytes _metaPackage) permissioned public returns (bool){
+    function restoreMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, address _oldAddress, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool){
         //permission check from modifier permissionedOnly(msg.sender)
 
         //get NEW address from metaPackage
@@ -172,20 +168,17 @@ contract MetadiumIdentityManager is Ownable {
         //verify the signature using ecverify & new sender address
         require(ecverify(_newMetaID, _sig, _senderFromMetaPackage));
 
-        //get metaID address from Metadium Name Service
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-
         //check whether same old Meta ID exists
         //require(metaIDContract.exists(uint256(_oldMetaID))); // double checked
 
         //check whether same new Meta ID exists
-        require(!metaIDContract.exists(uint256(_newMetaID)));
+        require(!MID.exists(uint256(_newMetaID)));
       
         //burn old erc721 token from sender address
-        require(metaIDContract.burn(uint256(_oldMetaID)));
+        require(MID.burn(uint256(_oldMetaID)));
 
         //mint new erc721 token to sender address 
-        require(metaIDContract.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
+        require(MID.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
 
         //approve transfer and burn and mint to permissioned address(e.g. proxy)
         RestoreMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
@@ -194,14 +187,12 @@ contract MetadiumIdentityManager is Ownable {
 
     }
 
-    function ownerOf(bytes32 _tokenId) public view returns (address _owner){
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.ownerOf(uint256(_tokenId));
+    function ownerOf(bytes32 _tokenId) linked public view returns (address _owner){
+        return MID.ownerOf(uint256(_tokenId));
     }
 
-    function tokenURI(bytes32 _tokenId) public view returns (string){
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.tokenURI(uint256(_tokenId));
+    function tokenURI(bytes32 _tokenId) linked public view returns (string){
+        return MID.tokenURI(uint256(_tokenId));
     }
 
     /**
@@ -209,19 +200,16 @@ contract MetadiumIdentityManager is Ownable {
     * @dev Throws if the token ID does not exist. May return an empty string.
     * @param _tokenId uint256 ID of the token to query
     */
-    function tokenURIAsBytes(bytes32 _tokenId) public view returns (bytes) {
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.tokenURIAsBytes(uint256(_tokenId));
+    function tokenURIAsBytes(bytes32 _tokenId) linked public view returns (bytes) {
+        return MID.tokenURIAsBytes(uint256(_tokenId));
     }
 
-    function balanceOf(address _owner) public view returns (uint256 _balance){
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return metaIDContract.balanceOf(_owner);
+    function balanceOf(address _owner) linked public view returns (uint256 _balance){
+        return MID.balanceOf(_owner);
     }
 
-    function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (bytes32 _tokenId){
-        MetaID metaIDContract = MetaID(MNS.getContractAddress(nameMetaID));
-        return bytes32(metaIDContract.tokenOfOwnerByIndex(_owner, _index));
+    function tokenOfOwnerByIndex(address _owner, uint256 _index) linked public view returns (bytes32 _tokenId){
+        return bytes32(MID.tokenOfOwnerByIndex(_owner, _index));
     }
 
     function ecrecovery(bytes32 hash, bytes sig) public constant returns (address) {
@@ -288,5 +276,13 @@ contract MetadiumIdentityManager is Ownable {
             out |= bytes20(b[i] & 0xFF) >> ((i-1) * 8);    
         }
         return address(out);
+    }
+
+    function setMetadiumNameServiceAddress(address _addr) onlyOwner {
+        MNS = MetadiumNameService(_addr);
+    }
+    
+    function setMetaIDAddress(address _addr) onlyOwner {
+        MID = MetaID(MNS.getContractAddress(nameMetaID));
     }
 }
