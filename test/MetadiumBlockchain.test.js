@@ -18,8 +18,6 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
     const defaultGasPrice = 10;
 
     var metaPackage = "0x01" + user1.slice(2) + "1234123412341234123456785678567856785678ab0132f89cbab807ea4de1fc5ba13cd164f1795a84fe1234123412341234123456785678567856785678abab"
-    //console.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!metaPackage : ${metaPackage}`)
-    //var metaPackage = "0x0132f89cbab807ea4de1fc5ba13cd164f1795a84fe1234123412341234123456785678567856785678ab0132f89cbab807ea4de1fc5ba13cd164f1795a84fe1234123412341234123456785678567856785678abab"
     var metaID = "0x1b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
     var signedMetaID = web3.eth.sign(user1, metaID);
 
@@ -28,9 +26,8 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
     var signedMetaIDAndTimestamp = web3.eth.sign(user1, metaIDAndTimeStamp)
     timestamp = "0x" + timestamp;
 
-    var _newMetaPackage = "0x01" + user1.slice(2) + "1234123412341234123456785678567856785678ab0132f89cbab807ea4de1fc5ba13cd164f1795a84fe1234123412341234123456785678567856785678bcbc"
+    var newMetaPacakge = "0x01" + user1.slice(2) + "1234123412341234123456785678567856785678ab0132f89cbab807ea4de1fc5ba13cd164f1795a84fe1234123412341234123456785678567856785678bcbc"
     var newMetaID = "0x2b442640e0333cb03054940e3cda07da982d2b57af68c3df8d0557b47a77d0bc";
-    //var newHashMetaID = web3.sha3(newMetaID, {encoding: 'hex'})
     var newsignedMetaID = web3.eth.sign(user1, newMetaID)
 
     var restoreMetaPackage = "0x01" + user2.slice(2) + "1234123412341234123456785678567856785678ab0132f89cbab807ea4de1fc5ba13cd164f1795a84fe1234123412341234123456785678567856785678abab"
@@ -217,7 +214,7 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
         });
         describe('when contracts are not linked', function () {
             it('reverts', async function () {
-                await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas }));
+                await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }));
             });
         });
 
@@ -229,7 +226,7 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
             });
             describe('when not permissioned', function () {
                 it('reverts', async function () {
-                    await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas }));
+                    await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }));
                 });
             });
 
@@ -262,7 +259,7 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
                     describe('when address from ecverity using newMetaID doesn\'t match address from metaPackage', function () {
                         it('reverts', async function () {
                             var invalidSignedMetaID = web3.eth.sign(user2, newMetaID)
-                            await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, invalidSignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas }));
+                            await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, invalidSignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }));
                         });
                     });
 
@@ -272,11 +269,11 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
 
 
                             it('reverts', async function () {
-                                //this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas })
-                                await this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas })
+                                //this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
+                                await this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
                                 var _balance = await this.metaID.balanceOf(user1)
                                 assert.equal(_balance, 2)
-                                await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas }));
+                                await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }));
                             });
 
 
@@ -286,12 +283,12 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
 
 
                             it('Update(burn old MetaID and mint new MetaID) MetaID', async function () {
-                                await this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas })
+                                await this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
                                 var _balance = await this.metaID.balanceOf(user1)
                                 assert.equal(_balance, 1)
 
                                 var _uri = await this.metaID.tokenURIAsBytes(newMetaID);
-                                assert.equal(_newMetaPackage, _uri)
+                                assert.equal(newMetaPacakge, _uri)
                             });
                             it('emit UpdateMetaID event', async function () {
                                 assert.equal(true, true);
@@ -370,8 +367,8 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
 
                         describe('when newMetaID already exists', function () {
                             it('reverts', async function () {
-                                //this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas })
-                                await this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, _newMetaPackage, { from: proxy1, gas: defaultGas })
+                                //this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
+                                await this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
                                 var _balance = await this.metaID.balanceOf(user1)
                                 assert.equal(_balance, 2)
                                 await assertRevert(this.metadiumIdentityManager.restoreMetaID(metaID, restoreMetaID, user1, restoreSignedMetaID, restoreMetaPackage, { from: proxy1, gas: defaultGas }));
