@@ -31,15 +31,7 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
         await this.metaID.setMetadiumNameServiceAddress(this.metadiumNameService.address, { from: owner, gas: defaultGas });
         await this.metadiumNameService.setContractDomain("MetaID", this.metaID.address, { from: owner, gas: defaultGas });
         await this.metadiumNameService.setContractDomain("MetadiumIdentityManager", this.metadiumIdentityManager.address, { from: owner, gas: defaultGas });
-        /*
-            this.metadiumNameService.setContractDomain("MetaID", this.metaID.address, { from: owner });
-            this.metadiumNameService.setContractDomain("MetadiumIdentityManager", this.metadiumIdentityManager.address, { from: owner });
-            this.metadiumNameService.setPermission("MetadiumIdentityManager", proxy1, "true", { from: owner });
-            this.metadiumNameService.setPermission("MetaID", this.metadiumIdentityManager.address, "true", { from: owner });
-            this.metadiumIdentityManager.setMetadiumNameServiceAddress(this.metadiumNameService.address, { from: owner });
-            this.metadiumIdentityManager.setMetaIDAddress(this.metaID.address, { from: owner });
 
-        */
     });
 
     describe('Create MetaID', function () {
@@ -87,7 +79,12 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
                     describe('when address from ecverify using signature(metaID) matches address from metaPackage', function () {
                         describe('when MetaID already exists', function () {
                             it('reverts', async function () {
-                                assert.equal(true, true);
+                                await this.metadiumIdentityManager.createMetaID(metaID, signedMetaID, metaPackage, { from: proxy1, gas: defaultGas })
+                                var tokenIDFromContract = await this.metaID.tokenOfOwnerByIndex(user1, 0);
+                                var tokenID = 12332856527561918398656559670597772716224198208786829738281751814729075511484 // decimal of hashMetaID
+                                assert.equal(tokenIDFromContract, tokenID)
+
+                                await assertRevert(this.metadiumIdentityManager.createMetaID(metaID, signedMetaID, metaPackage, { from: proxy1, gas: defaultGas }))
                             });
                         });
                         
