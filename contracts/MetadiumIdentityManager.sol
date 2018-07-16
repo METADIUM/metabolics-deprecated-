@@ -98,7 +98,7 @@ contract MetadiumIdentityManager is Ownable {
         require(ecverifyWithTimestamp(_metaID, _timestamp, _sig, _senderFromMetaID));
 
         //check whether the metaID belongs to the sender. this also checks existence
-        require(MID.ownerOf(uint256(_metaID)) == _senderFromMetaID);
+        //require(MID.ownerOf(uint256(_metaID)) == _senderFromMetaID); // double checked
 
         //burn metaID
         require(MID.burn(uint256(_metaID)));
