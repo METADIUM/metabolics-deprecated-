@@ -76,7 +76,7 @@ contract MetadiumIdentityManager is Ownable {
         //if not, mint erc721 token to sender address 
         require(MID.mint(_senderFromMetaPackage, uint256(_metaID), string(_metaPackage)));
 
-        CreateMetaID(_senderFromMetaPackage, _metaID);
+        emit CreateMetaID(_senderFromMetaPackage, _metaID);
 
         return true;
 
@@ -103,7 +103,7 @@ contract MetadiumIdentityManager is Ownable {
         //burn metaID
         require(MID.burn(uint256(_metaID)));
 
-        DeleteMetaID(_senderFromMetaID, _metaID);
+        emit DeleteMetaID(_senderFromMetaID, _metaID);
         
         return true;
     }
@@ -141,7 +141,7 @@ contract MetadiumIdentityManager is Ownable {
         require(MID.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
 
         //approve transfer and burn and mint to permissioned address(e.g. proxy)
-        UpdateMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
+        emit UpdateMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
 
         return true;
 
@@ -181,7 +181,7 @@ contract MetadiumIdentityManager is Ownable {
         require(MID.mint(_senderFromMetaPackage, uint256(_newMetaID), string(_metaPackage)));
 
         //approve transfer and burn and mint to permissioned address(e.g. proxy)
-        RestoreMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
+        emit RestoreMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
 
         return true;
 

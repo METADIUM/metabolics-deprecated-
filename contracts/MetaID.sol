@@ -35,7 +35,7 @@ contract MetaID is ERC721Token, Ownable {
     function mint(address _to, uint256 _tokenId, string _uri) permissioned public returns (bool) {
         super._mint(_to, _tokenId);
         super._setTokenURI(_tokenId, _uri);
-        Mint(_to, _tokenId);
+        emit Mint(_to, _tokenId);
         return true;
     }
 
