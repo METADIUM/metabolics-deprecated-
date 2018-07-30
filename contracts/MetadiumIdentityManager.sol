@@ -73,6 +73,8 @@ contract MetadiumIdentityManager is Ownable {
         //check whether same meta ID exists if yes, revert
         require(!MID.exists(uint256(_metaID)));
 
+        require(balanceOf(_senderFromMetaPackage) == 0);
+
         //if not, mint erc721 token to sender address 
         require(MID.mint(_senderFromMetaPackage, uint256(_metaID), string(_metaPackage)));
 

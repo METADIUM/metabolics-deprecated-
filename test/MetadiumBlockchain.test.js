@@ -269,11 +269,11 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
 
 
                             it('reverts', async function () {
-                                //this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
-                                await this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
-                                var _balance = await this.metaID.balanceOf(user1)
-                                assert.equal(_balance, 2)
-                                await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }));
+                                await this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
+                                await assertRevert(this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }))
+                                //var _balance = await this.metaID.balanceOf(user1)
+                                //assert.equal(_balance, 2)
+                                //await assertRevert(this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }));
                             });
 
 
@@ -367,11 +367,11 @@ contract('Metadium Identity Manager', function ([deployer, owner, proxy1, proxy2
 
                         describe('when newMetaID already exists', function () {
                             it('reverts', async function () {
-                                //this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
-                                await this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
-                                var _balance = await this.metaID.balanceOf(user1)
-                                assert.equal(_balance, 2)
-                                await assertRevert(this.metadiumIdentityManager.restoreMetaID(metaID, restoreMetaID, user1, restoreSignedMetaID, restoreMetaPackage, { from: proxy1, gas: defaultGas }));
+                                await this.metadiumIdentityManager.updateMetaID(metaID, newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas })
+                                await assertRevert(this.metadiumIdentityManager.createMetaID(newMetaID, newsignedMetaID, newMetaPacakge, { from: proxy1, gas: defaultGas }))
+                                //var _balance = await this.metaID.balanceOf(user1)
+                                //assert.equal(_balance, 2)
+                                //await assertRevert(this.metadiumIdentityManager.restoreMetaID(metaID, restoreMetaID, user1, restoreSignedMetaID, restoreMetaPackage, { from: proxy1, gas: defaultGas }));
                             });
 
 
