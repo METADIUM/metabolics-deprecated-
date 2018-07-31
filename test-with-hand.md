@@ -85,3 +85,22 @@ MetadiumIdentityManager: 0x7fc9f6c286549902e4101241e5b8b9b88a021a3e
 MetadiumNameService: 0xb2cdd687dc0805f003a7020765886db5136b0db7
 MetaID: 0xbaf2292f199e95964f793c4b746c24b2f82d1d92
 MetadiumIdentityManager: 0xacc650c912df6a92c0eb3a81843ada08f9f04b2f
+
+07/30 
+newMIM = '0xb2f709afef65f7ed00d2465fff766418df5bd856'
+MIM : 0xb2f709afef65f7ed00d2465fff766418df5bd856
+
+
+mim = mimContract.at(newMIM)
+mns.setPermission("MetaID",newMIM,'true',{from:eth.accounts[2]})
+mim.setMetadiumNameServiceAddress('0xb2cdd687dc0805f003a7020765886db5136b0db7',{from:eth.accounts[2]})
+mns.setContractDomain("MetadiumIdentityManager",newMIM,{from:eth.accounts[2]})
+
+
+mns.getContractAddress("MetadiumIdentityManager")
+mns.setPermission("MetaID",'0xacc650c912df6a92c0eb3a81843ada08f9f04b2f','false',{from:eth.accounts[2]})
+mns.setPermission("MetaID",'0x9179bedafbfe602b8b5f7d551690603741eb1b68','false',{from:eth.accounts[2]})
+mns.getPermission("MetaID",'0xacc650c912df6a92c0eb3a81843ada08f9f04b2f')
+mns.getPermission("MetaID",'0x9179bedafbfe602b8b5f7d551690603741eb1b68')
+mns.getPermission("MetaID",'0xb2f709afef65f7ed00d2465fff766418df5bd856')
+0xb2f709afef65f7ed00d2465fff766418df5bd856

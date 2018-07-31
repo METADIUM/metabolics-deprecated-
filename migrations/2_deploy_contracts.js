@@ -78,3 +78,6 @@ module.exports = deployer => {
 //   ... 0xe0c2bbd76bb42e82e6c4444170c38f31fb535d6d5b33bafc7cbeee451c1a7f6a
 //   ... 0x0c83c544af8149ca9858a2d94dfc380008effc027c7022c46eedf44bbc36e250
 //   ... 0xfc119b2cabc8a935041088dc155220c667a5df9ecb97e63c5ce37d721e7d2abc
+
+
+// 07/30 MIM : 0x9179bedafbfe602b8b5f7d551690603741eb1b68
