@@ -1,10 +1,11 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "./openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./MetadiumNameService.sol";
-// contract MasterContract{
 
+// contract MasterContract {
 // }
+
 contract ERC20Basic {
   function totalSupply() public view returns (uint256);
   function balanceOf(address who) public view returns (uint256);
@@ -25,7 +26,6 @@ contract MetaID {
 }
 
 contract MetadiumIdentityManager is Ownable {
-
     MetadiumNameService public MNS; // address of Metadium Name Service
     MetaID public MID; // address of MetaID
 
@@ -55,12 +55,12 @@ contract MetadiumIdentityManager is Ownable {
     }
     
     /**
-    * @dev Function to create New Meta ID. signature = user_privatekey_sign(_metaID)
-    * @param _metaID metaID of the user
-    * @param _sig ECDSA signature
-    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
-    * @return A boolean that indicates if the operation was successful.
-    */
+     * @dev Function to create New Meta ID. signature = user_privatekey_sign(_metaID)
+     * @param _metaID metaID of the user
+     * @param _sig ECDSA signature
+     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes)
+     * @return A boolean that indicates if the operation was successful.
+     */
     function createMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool){
         //permission checked by modifier permissioned
 
@@ -81,15 +81,14 @@ contract MetadiumIdentityManager is Ownable {
         emit CreateMetaID(_senderFromMetaPackage, _metaID);
 
         return true;
-
     }
 
     /**
-    * @dev Function to delete Meta ID. signature = user_privatekey_sign(_metaID . _timestamp)
-    * @param _metaID metaID of the user
-    * @param _sig ECDSA signature
-    * @return A boolean that indicates if the operation was successful.
-    */
+     * @dev Function to delete Meta ID. signature = user_privatekey_sign(_metaID . _timestamp)
+     * @param _metaID metaID of the user
+     * @param _sig ECDSA signature
+     * @return A boolean that indicates if the operation was successful.
+     */
     function deleteMetaID(bytes32 _metaID, bytes _timestamp, bytes _sig) linked permissioned public returns (bool){
         //permission check from modifier permissioned
 
@@ -111,13 +110,13 @@ contract MetadiumIdentityManager is Ownable {
     }
 
     /**
-    * @dev Function to update old MetaID to New MetaID. signature = user_privatekey_sign(_newMetaID)
-    * @param _oldMetaID metaID of the user
-    * @param _newMetaID metaID of the user
-    * @param _sig ECDSA signature
-    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
-    * @return A boolean that indicates if the operation was successful.
-    */
+     * @dev Function to update old MetaID to New MetaID. signature = user_privatekey_sign(_newMetaID)
+     * @param _oldMetaID metaID of the user
+     * @param _newMetaID metaID of the user
+     * @param _sig ECDSA signature
+     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes)
+     * @return A boolean that indicates if the operation was successful.
+     */
     function updateMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool){
         //permission check from modifier permissionedOnly(msg.sender)
 
@@ -150,14 +149,14 @@ contract MetadiumIdentityManager is Ownable {
     }
 
     /**
-    * @dev Function to update old MetaID to New MetaID. signature = user_privatekey_sign(_newMetaID)
-    * @param _oldMetaID metaID of the user
-    * @param _newMetaID metaID of the user
-    * @param _oldAddress old address of the user
-    * @param _sig ECDSA signature
-    * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
-    * @return A boolean that indicates if the operation was successful.
-    */
+     * @dev Function to update old MetaID to New MetaID. signature = user_privatekey_sign(_newMetaID)
+     * @param _oldMetaID metaID of the user
+     * @param _newMetaID metaID of the user
+     * @param _oldAddress old address of the user
+     * @param _sig ECDSA signature
+     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes)
+     * @return A boolean that indicates if the operation was successful.
+     */
     function restoreMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, address _oldAddress, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool){
         //permission check from modifier permissionedOnly(msg.sender)
 
@@ -186,7 +185,6 @@ contract MetadiumIdentityManager is Ownable {
         emit RestoreMetaID(_senderFromMetaPackage, _oldMetaID, _newMetaID);
 
         return true;
-
     }
 
     function ownerOf(bytes32 _tokenId) linked public view returns (address _owner){
@@ -198,10 +196,10 @@ contract MetadiumIdentityManager is Ownable {
     }
 
     /**
-    * @dev Returns an URI as bytes for a given token ID
-    * @dev Throws if the token ID does not exist. May return an empty string.
-    * @param _tokenId uint256 ID of the token to query
-    */
+     * @dev Returns an URI as bytes for a given token ID
+     * @dev Throws if the token ID does not exist. May return an empty string.
+     * @param _tokenId uint256 ID of the token to query
+     */
     function tokenURIAsBytes(bytes32 _tokenId) linked public view returns (bytes) {
         return MID.tokenURIAsBytes(uint256(_tokenId));
     }
@@ -214,7 +212,7 @@ contract MetadiumIdentityManager is Ownable {
         return bytes32(MID.tokenOfOwnerByIndex(_owner, _index));
     }
 
-    function ecrecovery(bytes32 hash, bytes sig) public constant returns (address) {
+    function ecrecovery(bytes32 hash, bytes sig) public pure returns (address) {
         bytes32 r;
         bytes32 s;
         uint8 v;
@@ -247,15 +245,14 @@ contract MetadiumIdentityManager is Ownable {
         return ecrecover(hash, v, r, s);
     }
 
-    function ecverify(bytes32 message, bytes sig, address signer) public constant returns (bool) {
+    function ecverify(bytes32 message, bytes sig, address signer) public pure returns (bool) {
         //message = keccak256(message);
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        message = keccak256(prefix, message);
+        message = keccak256(abi.encodePacked(prefix, message));
         return signer == ecrecovery(message, sig);
     }
 
-    function ecverifyWithTimestamp(bytes32 message, bytes timestamp, bytes sig, address signer) public constant returns (bool) {
-        
+    function ecverifyWithTimestamp(bytes32 message, bytes timestamp, bytes sig, address signer) public pure returns (bool) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         uint256 lens = message.length + timestamp.length;
 
@@ -263,9 +260,8 @@ contract MetadiumIdentityManager is Ownable {
         prefix[prefix.length-2] = byte(lens / 10 + 48);
         prefix[prefix.length-1] = byte(lens % 10 + 48);
 
-        bytes32 hashedMessage = keccak256(prefix, message, timestamp);
+        bytes32 hashedMessage = keccak256(abi.encodePacked(prefix, message, timestamp));
         return signer == ecrecovery(hashedMessage, sig);
-
     }
 
     function getAddressFromMetaPackage(bytes b) public pure returns (address) {
@@ -280,11 +276,11 @@ contract MetadiumIdentityManager is Ownable {
         return address(out);
     }
 
-    function setMetadiumNameServiceAddress(address _addr) onlyOwner {
+    function setMetadiumNameServiceAddress(address _addr) public onlyOwner {
         MNS = MetadiumNameService(_addr);
     }
     
-    function setMetaIDAddress(address _addr) onlyOwner {
+    function setMetaIDAddress(address /*_addr*/) public onlyOwner {
         MID = MetaID(MNS.getContractAddress(nameMetaID));
     }
 }
