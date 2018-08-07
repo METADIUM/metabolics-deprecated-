@@ -1,9 +1,11 @@
 # Makefile
 
+TRUFFLE_IMAGE = metadium/meta-web3:0.1
+
 ifeq "$(shell uname -s)" "Darwin"
-	TRUFFLE = docker run -e "HOME=/tmp" --rm -v $${PWD}:/data -w /data 900df00d/truffle:latest truffle
+	TRUFFLE = docker run -it -e "HOME=/tmp" --rm -v $${PWD}:/data -w /data $(TRUFFLE_IMAGE) truffle
 else
-	TRUFFLE = docker run -e "HOME=/tmp" -u $(shell id -u):$(shell id -g) --rm -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v $${PWD}:/data -w /data 900df00d/truffle:latest truffle
+	TRUFFLE = docker run -it -e "HOME=/tmp" -u $(shell id -u):$(shell id -g) --rm -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v $${PWD}:/data -w /data $(TRUFFLE_IMAGE) truffle
 endif
 
 ifeq "$(DEST)" ""
@@ -16,6 +18,12 @@ all: build
 
 build: check_submodule
 	$(TRUFFLE) compile
+	@[ -d build/js ] || mkdir -p build/js
+	@echo ".sol -> .js..."
+	@for i in `ls -1 contracts/*.sol`; do                             \
+	  j=$${i/contracts/js};                                           \
+	  scripts/json2js.sh build/$${i/.sol/.json} build/$${j/.sol/.js}; \
+	done
 
 install: migrate
 
