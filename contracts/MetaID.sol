@@ -15,7 +15,7 @@ contract MetaID is ERC721Token, Ownable {
     event Mint(address indexed owner, uint256 indexed metaID);
     event Burn(address indexed owner, uint256 indexed metaID);
     
-    function setMetadiumNameServiceAddress(address _addr) internal onlyOwner {
+    function setMetadiumNameServiceAddress(address _addr) public onlyOwner {
         MNS = MetadiumNameService(_addr);
     }
 
