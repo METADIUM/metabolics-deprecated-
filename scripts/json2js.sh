@@ -66,7 +66,7 @@ function flush() {
     return;
   }
   print "var " contract_name "_data = " bytecode;
-  print "var " contract_name "_contract = " abi;
+  print "var " contract_name "_contract = web3.eth.contract(" abi ")";;
   if (length(gas_price) != 0) {
       gas_price_2 = ",\
     gasPrice: \"" gas_price "\"";
