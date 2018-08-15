@@ -51,7 +51,8 @@ module.exports = {
   }
 }
 
-var fs = require('fs')
+if (!fs)
+    fs = require('fs')
 if (fs.existsSync('./truffle.local.js')) {
   eval(fs.readFileSync('./truffle.local.js')+'')
 }
