@@ -29,6 +29,8 @@ async function getPassword() {
 async function loadV3Wallet(fileName, password) {
     ew = require('ethereumjs-wallet');
     data = fs.readFileSync(fileName).toString('utf8');
+    if (password == '-' || password == "")
+        password = null;
     if (!password) {
         password = await getPassword();
     }

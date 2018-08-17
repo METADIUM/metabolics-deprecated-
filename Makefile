@@ -33,7 +33,7 @@ migrate: build
 	$(TRUFFLE) migrate $(DEST_NET)
 
 deploy: build
-	$(NODEJS) scripts/deploy.js $(DEST_NET) deploy-meta build/contracts -
+	$(NODEJS) scripts/deploy.js $(DEST_NET) -w - acct deploy-meta build/contracts -
 
 check_submodule: contracts/openzeppelin-solidity/.git
 
