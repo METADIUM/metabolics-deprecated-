@@ -1,4 +1,11 @@
-# Metadium Smart Contracts
+![meta logo](./misc/Metadium_Logo_Vertical_PNG.png)
+# Metadium Metadium Identity Manager Smart Contract
+[![Generic badge](https://img.shields.io/badge/build-passing-green.svg)](https://shields.io/)    [![Generic badge](https://img.shields.io/badge/licence-MIT-blue.svg)](https://shields.io/)
+
+This is pre-alpha concept smart contract of Metadium.
+
+Metadium Identity Manager create MetaID with the merkle root of the user data.
+
 Metadium Smart Contracts consist of followings:
 * Metadium Name Service
 * Metadium Identity Manager
@@ -6,16 +13,44 @@ Metadium Smart Contracts consist of followings:
 * MetaRecoveery(ERC721)
 * Permission
 
+
 ## Deploy
 
 to meta network
 ```
 $ truffle migrate all --reset --network metadium
 ```
+OR
+```
+$ truffle migrate all --reset --network
+```
 
+## How to test
+Install truffle
 
-## Update
-ver 0.1 we don't use status, attestation mask field,
+```
+$ npm install -g truffle
+
+```
+
+Install ganache-cli
+
+```
+$ npm install -g ganache-cli
+
+$ ganache-cli -l 0xffffffff
+```
+
+In the project root directory, 
+
+```
+$ npm install
+```
+
+**Whole test**
+```
+$ truffle test test/MetadiumBlockchain.test.js
+```
 
 ## How to Use
 1. Get the current Metadium Identity Manager contract address from MNS(Metadium Name Service)
@@ -89,19 +124,19 @@ You can get the specific address of contract you want to read.
     * @param _metaPackage = Version(1 byte) . userSenderAddress(20 bytes) . AttestationMask(32 bytes) . Status(32 bytes) 
     * @return A boolean that indicates if the operation was successful.
     */
-    function createMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool)
+    function createMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool)
 ```
 
 Create New MetaID. MetaID is minted as ERC721 Format. You can either read from this contract or directly from ERC721 MetaID contract.
 
 
 ```
-    function deleteMetaID(bytes32 _metaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool)
+    function deleteMetaID(bytes32 _metaID, bytes _timestamp, bytes _sig) linked permissioned public returns (bool)
 ```
 Delete MetaID if exists.
 
 ```
-    function updateMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, bytes _sig, bytes _metaPackage) permissioned public returns (bool)
+    function updateMetaID(bytes32 _oldMetaID, bytes32 _newMetaID, bytes _sig, bytes _metaPackage) linked permissioned fixedLengthMetaPackage(_metaPackage) public returns (bool)
 ```     
 Update MetaID. Burn old metaID and mint new metaID to the user.
 
@@ -112,38 +147,6 @@ Update MetaID. Burn old metaID and mint new metaID to the user.
     function balanceOf(address _owner) public view returns (uint256 _balance)
     function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId)
 ```
-proxy interface of MetaID.
-get metaID information from MetaID contract.
+Proxy interface of MetaID.
 
-
-#### MetaRecovery functions
-
-```
-    function getRecoveryData(uint256 _metaID) public constant returns (bytes32)
-```
-Get the IPFS path of the user metaID
-
-```
-    function createNewMetaRecovery(uint256 _metaID, uint8 _sigV, bytes32 _sigR, bytes32 _sigS, bytes _metaPackage) public returns (bool)
-```
-Create new Meta Recovery Token as ERC721 format. This token has IPFS path of the user's recovery document.
-
-## how to test
-
-node version : v9.4.0
-
-토큰 하나에 344 byte 까지 저장 가능 한 것 확인. max가 얼마인지는 모름
-
-###
-
-//proxy1 address : 0x084f8293F1b047D3A217025B24cd7b5aCe8fC657
-//proxy1 private key : 348a1e57efc055f3b8243f6e78fb18d0508f68d6f2e7cadf92b87e84a0b51024
-//this is node3 account[1]
-
-07/02
-MetadiumNameService: 0xe06dbbcb9af642017012d5021d586536673b955f
-MetaID: 0x58fe1753151573185566e46c14330a08d6359249
-MetadiumIdentityManager: 0x280c4b294f9179691f30466c14963eb2d5b0addf
-
-07/30
-MIM : 0x9179bedafbfe602b8b5f7d551690603741eb1b68
+Get metaID information from MetaID contract.
