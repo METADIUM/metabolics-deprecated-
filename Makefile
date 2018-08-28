@@ -4,8 +4,10 @@ TRUFFLE_IMAGE = metadium/meta-web3:0.1
 
 ifeq "$(shell uname -s)" "Darwin"
 	TRUFFLE = docker run -it -e "HOME=/tmp" --rm -v $${PWD}:/data -w /data $(TRUFFLE_IMAGE) truffle
+	NODEJS = docker run -it -e "HOME=/tmp" --rm -v $${PWD}:/data -w /data $(TRUFFLE_IMAGE) nodejs
 else
 	TRUFFLE = docker run -it -e "HOME=/tmp" -u $(shell id -u):$(shell id -g) --rm -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v $${PWD}:/data -w /data $(TRUFFLE_IMAGE) truffle
+	NODEJS = docker run -it -e "HOME=/tmp" -u $(shell id -u):$(shell id -g) --rm -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -v $${PWD}:/data -w /data $(TRUFFLE_IMAGE) nodejs
 endif
 
 ifeq "$(DEST)" ""
@@ -30,6 +32,9 @@ install: migrate
 migrate: build
 	$(TRUFFLE) migrate $(DEST_NET)
 
+deploy: build
+	$(NODEJS) scripts/deploy.js $(DEST_NET) -w - acct deploy-meta build/contracts -
+
 check_submodule: contracts/openzeppelin-solidity/.git
 
 contracts/openzeppelin-solidity/.git:
@@ -39,6 +44,10 @@ contracts/openzeppelin-solidity/.git:
 clean:
 	@[ ! -d build ] || \rm -r build
 
-.PHONY: build clean
+aliases:
+	@echo "alias truffle='"$(TRUFFLE)"';";	\
+	echo "alias nodejs='"$(NODEJS)"';"
+
+.PHONY: build clean aliases
 
 # EOF
