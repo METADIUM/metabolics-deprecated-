@@ -2,7 +2,8 @@ require('babel-register')
 require('dotenv').config()
 
 var HDWalletProvider = require("truffle-hdwallet-provider");
-var mnemonic = "";
+
+var mnemonic = ""; // put your mnemonic for deploy
 
 module.exports = {
   networks: {
