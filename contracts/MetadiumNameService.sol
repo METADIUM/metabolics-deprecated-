@@ -5,7 +5,7 @@ import "./openzeppelin-solidity/contracts/ownership/Ownable.sol";
 /**
  * @title MetadiumNameService
  * @dev MetadiumNameService Contract used to set domain and permission
- * The contracts used by the permissioned user in ShowMe references permission in this contract.
+ * The contracts used by the permissioned user in Metadium references permission in this contract.
  * Not only contract address but also general address can be set in this contract.
  * Owner should set domain and permission.
  */

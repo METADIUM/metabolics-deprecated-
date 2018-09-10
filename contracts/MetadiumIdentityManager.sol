@@ -11,6 +11,13 @@ contract ERC20Basic {
   event Transfer(address indexed from, address indexed to, uint256 value);
 }
 
+/**
+ * @title MetadiumIdentityManager
+ * @dev MetadiumIdentityManager Contract used to manage Metadium Identity
+ * The permissinoed participant can CRUD Meta ID.
+ * Currently, we do not optimized our contract.
+ * Because this is a alpha - prototype.
+ */
 contract MetadiumIdentityManager is Ownable {
     MetadiumNameService public MNS; // address of Metadium Name Service
     MetaID public MID; // address of MetaID
